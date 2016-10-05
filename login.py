@@ -3,12 +3,6 @@ import hashlib, csv
 
 app = Flask(__name__)
 
-#makes dictionary of csv file
-instream = open('data/users.csv','r')
-userFile = csv.reader(instream)
-users = {rows[0]:rows[1] for rows in userFile}
-instream.close()
-
 @app.route('/')
 @app.route('/login')
 def loginPage():
@@ -20,50 +14,55 @@ def authenticate():
     if request.form['submit'] == "New User? Register":
         return render_template('newUser.html')
 
-    #declare message
-    msg = ""
-
     #username and pass
     name = request.form['user']
     passw = hashlib.sha224(request.form['pass']).hexdigest()
 
+    #makes dictionary of csv file
+    instream = open('data/users.csv','r')
+    userFile = csv.reader(instream)
+    users = {rows[0]:rows[1] for rows in userFile}
+    instream.close()
+
     #if user exists
     if name in users:
+
         #if correct password
         if users[name] == passw:
-            msg = 'Sucessful login!'
+            return render_template('loginResults.html')
         else:
-            msg = 'Incorrect password'
+            return render_template('login.html',msg = 'Incorrect password')
     else:
-        return render_template('login.html',specialMessage = 'User does not exist')
+        return render_template('login.html',msg = 'User does not exist')
     #you have logged in
-    return render_template('loginResults.html', result = msg, specialMessage = "")
+    return render_template('login.html',msg = "You broke the system. Nice job.")
 
 @app.route('/register', methods=["POST"])
 def register():
-    user = request.form['user']
+    username = request.form['user']
     passw = request.form['pass']
     pass2 = request.form['pass2']
 
     #username taken
-    if user in users:
-        return render_template('newUser.html', specialMessage = 'Username taken, try again')
+    if username in open('data/users.csv','r'):
+        return render_template('newUser.html', msg = 'Username taken, try again')
     #passwords much match
-    if passw == pass2:
+    elif passw == pass2:
+
+        instream = open('data/users.csv','a')
 
         #current users data
-        instream = open('data/users.csv','a')
         writer = csv.writer(instream)
 
         #add new user data
-        writer.writerow([user,hashlib.sha224(passw).hexdigest()])
+        writer.writerow([username,hashlib.sha224(passw).hexdigest()])
 
         #close file
         instream.close()
 
         #you registered
-        return render_template('login.html', specialMessage = "Success! Log in")
-    return render_template('newUser.html', specialMessage = 'Passwords do not match, try again')
+        return render_template('login.html', msg = "Success! Log in")
+    return render_template('newUser.html', msg = 'Passwords do not match, try again')
 
 if __name__ == '__main__':
     app.debug = True
