@@ -1,11 +1,14 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session, url_for
 import hashlib, csv
 
 app = Flask(__name__)
+app.secret_key = 'x\xfbM\xb8\x8ce.!\x99.1\xcbF\xb2[F\x85D\xa9\xc1\xf1\xa5^\\2ZL+Q\xc8\x13o'
 
 @app.route('/')
 @app.route('/login')
 def loginPage():
+    if 'user' in session:
+        return render_template('landingPage.html')
     return render_template('login.html')
 
 @app.route('/authenticate', methods=["POST"])
@@ -29,6 +32,7 @@ def authenticate():
 
         #if correct password
         if users[name] == passw:
+            session['user'] = name
             return render_template('loginResults.html')
         else:
             return render_template('login.html',msg = 'Incorrect password')
@@ -36,6 +40,14 @@ def authenticate():
         return render_template('login.html',msg = 'User does not exist')
     #you have logged in
     return render_template('login.html',msg = "You broke the system. Nice job.")
+
+@app.route('/logout')
+def logout():
+    if 'user' in session:
+        session.pop('user')
+        return render_template('loggedout.html')
+    else:
+        return render_template('login.html', msg = "You are not logged in")
 
 @app.route('/register', methods=["POST"])
 def register():
