@@ -49,7 +49,7 @@ def logout():
     else:
         return render_template('login.html', msg = "You are not logged in")
 
-@app.route('/register', methods=["POST"])ß
+@app.route('/register', methods=["POST"])
 def register():
     username = request.form['user']
     passw = request.form['pass']
