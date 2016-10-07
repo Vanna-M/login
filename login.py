@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, session, url_for
 import hashlib, csv
 
 app = Flask(__name__)
-app.secret_key = 'x\xfbM\xb8\x8ce.!\x99.1\xcbF\xb2[F\x85D\xa9\xc1\xf1\xa5^\\2ZL+Q\xc8\x13o'
+app.secret_key = 'fakeSecretKey'
 
 @app.route('/')
 @app.route('/login')
@@ -49,7 +49,7 @@ def logout():
     else:
         return render_template('login.html', msg = "You are not logged in")
 
-@app.route('/register', methods=["POST"])
+@app.route('/register', methods=["POST"])ß
 def register():
     username = request.form['user']
     passw = request.form['pass']
